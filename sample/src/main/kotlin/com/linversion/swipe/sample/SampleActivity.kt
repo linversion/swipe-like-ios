@@ -1,10 +1,9 @@
-package me.saket.swipe.sample
+package com.linversion.swipe.sample
 
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -16,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.twotone.Archive
 import androidx.compose.material.icons.twotone.ReplyAll
 import androidx.compose.material.icons.twotone.Snooze
@@ -41,10 +41,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import me.saket.swipe.SwipeAction
-import me.saket.swipe.SwipeableActionsBox
-import me.saket.swipe.sample.theme.DarkTheme
-import me.saket.swipe.sample.theme.LightTheme
+import com.linversion.swipe.SwipeAction
+import com.linversion.swipe.SwipeableActionsBox
+import me.saket.swipe.sample.R
+import com.linversion.swipe.sample.theme.DarkTheme
+import com.linversion.swipe.sample.theme.LightTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 class SampleActivity : AppCompatActivity() {
@@ -89,28 +90,29 @@ private fun SwipeableBoxPreview(modifier: Modifier = Modifier) {
   val replyAll = SwipeAction(
     icon = rememberVectorPainter(Icons.TwoTone.ReplyAll),
     background = Color.Perfume,
-    onSwipe = { println("Reply swiped") },
-    isUndo = false,
+    onClick = { println("Reply swiped") }
+  )
+  val delete = SwipeAction(
+    icon = rememberVectorPainter(Icons.Rounded.Delete),
+    background = Color.Red,
+    onClick = {println("Delete swiped") }
   )
   val snooze = SwipeAction(
     icon = rememberVectorPainter(Icons.TwoTone.Snooze),
     background = Color.SeaBuckthorn,
-    onSwipe = { isSnoozed = !isSnoozed },
-    isUndo = isSnoozed,
+    onClick = { isSnoozed = !isSnoozed }
   )
   val archive = SwipeAction(
     icon = rememberVectorPainter(Icons.TwoTone.Archive),
     background = Color.Fern,
-    onSwipe = { isArchived = !isArchived },
-    isUndo = isArchived,
+    onClick = { isArchived = !isArchived }
   )
 
   SwipeableActionsBox(
     modifier = modifier,
-    startActions = listOf(replyAll),
+    startActions = listOf(delete, replyAll),
     endActions = listOf(snooze, archive),
-    swipeThreshold = 40.dp,
-    backgroundUntilSwipeThreshold = MaterialTheme.colorScheme.surfaceColorAtElevation(40.dp)
+    swipeThreshold = 80.dp,
   ) {
     BatmanIpsumItem(
       isSnoozed = isSnoozed
@@ -129,7 +131,6 @@ private fun BatmanIpsumItem(
       .shadow(1.dp)
       .background(MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp))
       .padding(vertical = 16.dp, horizontal = 20.dp)
-      .animateContentSize()
   ) {
     Box(
       Modifier

@@ -20,7 +20,7 @@ android {
     kotlinCompilerExtensionVersion = libs.versions.androidx.compose.compiler.get()
   }
   java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(11))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
   }
   lint {
     abortOnError = true

@@ -2,8 +2,8 @@ plugins {
   alias(libs.plugins.android.library)
   alias(libs.plugins.kotlin.multiplatform)
   alias(libs.plugins.compose.multiplatform)
-  alias(libs.plugins.mavenPublish)
   alias(libs.plugins.paparazzi)
+  id("maven-publish")
 }
 
 kotlin {
@@ -37,7 +37,7 @@ kotlin {
 }
 
 android {
-  namespace = "me.saket.swipe"
+  namespace = "com.linversion.swipe"
 
   defaultConfig {
     minSdk = libs.versions.minSdk.get().toInt()
@@ -50,17 +50,36 @@ android {
     kotlinCompilerExtensionVersion = libs.versions.androidx.compose.compiler.get()
   }
   java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(11))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
   }
   lint {
     abortOnError = true
   }
+
+  buildTypes {
+    release {
+      isMinifyEnabled = false
+    }
+  }
+
+  publishing {
+    singleVariant("release") {
+      withSourcesJar()
+      withJavadocJar()
+    }
+  }
 }
 
-// Used on CI to prevent publishing of non-snapshot versions.
-tasks.register("throwIfVersionIsNotSnapshot") {
-  val libraryVersion = properties["VERSION_NAME"] as String
-  check(libraryVersion.endsWith("SNAPSHOT")) {
-    "Project isn't using a snapshot version = $libraryVersion"
+publishing {
+  publications {
+    register<MavenPublication>("release") {
+      groupId = "com.linversion.swipe"
+      artifactId = "swipe-like-ios"
+      version = "1.0.0"
+
+      afterEvaluate {
+        from(components["release"])
+      }
+    }
   }
 }

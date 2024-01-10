@@ -1,4 +1,4 @@
-package me.saket.swipe.sample.theme
+package com.linversion.swipe.sample.theme
 
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme

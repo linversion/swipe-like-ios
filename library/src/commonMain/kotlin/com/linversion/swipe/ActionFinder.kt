@@ -1,4 +1,4 @@
-package me.saket.swipe
+package com.linversion.swipe
 
 import kotlin.math.abs
 
@@ -37,13 +37,13 @@ internal data class ActionFinder(
       return null
     }
 
-    val totalWeights = this.sumOf { it.weight }
+    val totalWeights = this.sumOf { it.iconSize.value.toInt() }
     var offsetSoFar = 0.0
 
     @Suppress("ReplaceManualRangeWithIndicesCalls") // Avoid allocating an Iterator for every pixel swiped.
     for (i in 0 until size) {
       val action = this[i]
-      val actionWidth = (action.weight / totalWeights) * totalWidth
+      val actionWidth = (1f / totalWeights) * totalWidth
       val actionEndX = offsetSoFar + actionWidth
 
       if (offset <= actionEndX) {

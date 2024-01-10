@@ -1,8 +1,8 @@
-package me.saket.swipe
+package com.linversion.swipe
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation.Horizontal
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,16 +10,20 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.layout.layout
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
@@ -27,6 +31,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
@@ -46,7 +51,6 @@ fun SwipeableActionsBox(
   startActions: List<SwipeAction> = emptyList(),
   endActions: List<SwipeAction> = emptyList(),
   swipeThreshold: Dp = 40.dp,
-  backgroundUntilSwipeThreshold: Color = Color.DarkGray,
   content: @Composable BoxScope.() -> Unit
 ) = BoxWithConstraints(modifier) {
   state.also {
@@ -61,20 +65,12 @@ fun SwipeableActionsBox(
     }
   }
 
-  val backgroundColor: Color by animateColorAsState(
-    when {
-      state.swipedAction != null -> state.swipedAction!!.value.background
-      !state.hasCrossedSwipeThreshold() -> backgroundUntilSwipeThreshold
-      state.visibleAction != null -> state.visibleAction!!.value.background
-      else -> Color.Transparent
-    }
-  )
-
   val scope = rememberCoroutineScope()
+  val offsetX = state.offset.value.roundToInt()
+
   Box(
     modifier = Modifier
-      .absoluteOffset { IntOffset(x = state.offset.value.roundToInt(), y = 0) }
-      .drawOverContent { state.ripple.draw(scope = this) }
+      .absoluteOffset { IntOffset(x = offsetX, y = 0) }
       .draggable(
         orientation = Horizontal,
         enabled = !state.isResettingOnRelease,
@@ -88,40 +84,88 @@ fun SwipeableActionsBox(
     content = content
   )
 
-  (state.swipedAction ?: state.visibleAction)?.let { action ->
-    ActionIconBox(
-      modifier = Modifier.matchParentSize(),
-      action = action,
-      offset = state.offset.value,
-      backgroundColor = backgroundColor,
-      content = { action.value.icon() }
-    )
+  val actionWidthDp = LocalDensity.current.run { abs(offsetX).toDp() }
+
+  if (state.actions.right.isNotEmpty() && offsetX < 0) {
+    val rightActionOffset = constraints.maxWidth + offsetX
+
+    Row(
+      Modifier.absoluteOffset { IntOffset(x = rightActionOffset, y = 0) }.matchParentSize(),
+      horizontalArrangement = Arrangement.Start
+    ) {
+      val actionWidth = actionWidthDp / state.actions.right.size.toFloat()
+
+      for (action in state.actions.right) {
+        ActionIconBox(
+          action = action,
+          actionWidth = actionWidth,
+          swipeThreshold = swipeThreshold
+        ) {
+          if (action.resetAfterClick) {
+            scope.launch {
+              state.handleReset()
+              action.onClick()
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (state.actions.left.isNotEmpty() && offsetX > 0) {
+    val leftActionOffset = -constraints.maxWidth + offsetX
+
+    Row(
+      Modifier.absoluteOffset { IntOffset(x = leftActionOffset, y = 0) }.matchParentSize(),
+      horizontalArrangement = Arrangement.End
+    ) {
+      val actionWidth = actionWidthDp / state.actions.left.size.toFloat()
+
+      for (action in state.actions.left) {
+        ActionIconBox(
+          action = action,
+          actionWidth = actionWidth,
+          swipeThreshold = swipeThreshold
+        ) {
+          if (action.resetAfterClick) {
+            scope.launch {
+              state.handleReset()
+              action.onClick()
+            }
+          }
+
+        }
+      }
+    }
   }
 }
 
 @Composable
 private fun ActionIconBox(
-  action: SwipeActionMeta,
-  offset: Float,
-  backgroundColor: Color,
-  modifier: Modifier = Modifier,
-  content: @Composable () -> Unit
+  action: SwipeAction,
+  actionWidth: Dp,
+  swipeThreshold: Dp,
+  onClick: () -> Unit
 ) {
-  Row(
-    modifier = modifier
-      .layout { measurable, constraints ->
-        val placeable = measurable.measure(constraints)
-        layout(width = placeable.width, height = placeable.height) {
-          // Align icon with the left/right edge of the content being swiped.
-          val iconOffset = if (action.isOnRightSide) constraints.maxWidth + offset else offset - placeable.width
-          placeable.placeRelative(x = iconOffset.roundToInt(), y = 0)
-        }
-      }
-      .background(color = backgroundColor),
-    horizontalArrangement = if (action.isOnRightSide) Arrangement.Start else Arrangement.End,
-    verticalAlignment = Alignment.CenterVertically,
+  Box(
+    Modifier.width(actionWidth).fillMaxHeight().background(color = action.background).clip(RectangleShape),
+    contentAlignment = Alignment.CenterStart
   ) {
-    content()
+    Box(
+      modifier = Modifier
+        .graphicsLayer {
+          translationX = ((swipeThreshold - action.iconSize) / 2).toPx()
+        }
+        .clipToBounds()
+        .pointerInput(Unit) {
+          detectTapGestures {
+            onClick()
+          }
+        },
+      contentAlignment = Alignment.Center
+    ) {
+      action.icon()
+    }
   }
 }
 

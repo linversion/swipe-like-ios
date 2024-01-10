@@ -1,11 +1,12 @@
-package me.saket.swipe
+package com.linversion.swipe
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
@@ -26,28 +27,25 @@ import androidx.compose.ui.unit.dp
  * actions that can be toggled on and off.
  */
 class SwipeAction(
-  val onSwipe: () -> Unit,
+  val onClick: () -> Unit,
   val icon: @Composable () -> Unit,
   val background: Color,
-  val weight: Double = 1.0,
-  val isUndo: Boolean = false
+  val iconSize: Dp,
+  val resetAfterClick: Boolean
 ) {
-  init {
-    require(weight > 0.0) { "invalid weight $weight; must be greater than zero" }
-  }
 
   fun copy(
-    onSwipe: () -> Unit = this.onSwipe,
+    onClick: () -> Unit = this.onClick,
     icon: @Composable () -> Unit = this.icon,
+    iconSize: Dp = this.iconSize,
     background: Color = this.background,
-    weight: Double = this.weight,
-    isUndo: Boolean = this.isUndo,
+    resetAfterClick: Boolean = this.resetAfterClick
   ) = SwipeAction(
-    onSwipe = onSwipe,
+    onClick = onClick,
     icon = icon,
+    iconSize = iconSize,
     background = background,
-    weight = weight,
-    isUndo = isUndo
+    resetAfterClick = resetAfterClick
   )
 }
 
@@ -55,23 +53,23 @@ class SwipeAction(
  * See [SwipeAction] for documentation.
  */
 fun SwipeAction(
-  onSwipe: () -> Unit,
+  onClick: () -> Unit,
   icon: Painter,
+  iconSize: Dp = 24.dp,
   background: Color,
-  weight: Double = 1.0,
-  isUndo: Boolean = false
+  resetAfterClick: Boolean = true
 ): SwipeAction {
   return SwipeAction(
     icon = {
       Image(
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier.size(iconSize),
         painter = icon,
         contentDescription = null
       )
     },
+    iconSize = iconSize,
     background = background,
-    weight = weight,
-    onSwipe = onSwipe,
-    isUndo = isUndo
+    onClick = onClick,
+    resetAfterClick = resetAfterClick
   )
 }

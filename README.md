@@ -1,30 +1,42 @@
-# swipe
+# swipe-like-ios
 
-https://user-images.githubusercontent.com/2387680/157795117-3a343625-4a34-4303-bb28-d2deea7f9b68.mp4
+![](https://github.com/linversion/swipe-like-ios/blob/trunk/screenshot.gif)
 
-`swipe` builds composables that can be swiped left or right for revealing actions. Unlike [SwipeToDismiss](https://developer.android.com/reference/kotlin/androidx/compose/material/package-summary#SwipeToDismiss(androidx.compose.material.DismissState,androidx.compose.ui.Modifier,kotlin.collections.Set,kotlin.Function1,kotlin.Function1,kotlin.Function1)), it is designed for swipe actions that _do not_ dismiss their composable.
+`swipe-like-ios` builds composables that can be swiped left or right for revealing actions
 
 ```groovy
-implementation "me.saket.swipe:swipe:1.2.0"
+// settings.gradle.kts
+repositories {
+  maven { setUrl("https://www.jitpack.io") }
+}
+
+// build.gradle.kts
+implementation("com.linversion.swipe:swipe-like-ios:1.0.0")
 ```
 
 ```kotlin
 val archive = SwipeAction(
   icon = rememberVectorPainter(Icons.TwoTone.Archive),
   background = Color.Green,
-  onSwipe = { … }
+  onClick = { … }
 )
 
+val replyAll = SwipeAction(
+  icon = rememberVectorPainter(Icons.TwoTone.ReplyAll),
+  background = Color.Perfume,
+  onClick = { println("Reply swiped") }
+)
+  
 val snooze = SwipeAction(
   icon = { Text("Snooze") },
   background = Color.Yellow,
-  isUndo = true,
-  onSwipe = { … },
+  onClick = { … },
 )
 
 SwipeableActionsBox(
-  startActions = listOf(archive),
-  endActions = listOf(snooze)
+  startActions = listOf(replyAll),
+  endActions = listOf(snooze, archive),
+  swipeThreshold = 80.dp,
 ) {
   // Swipeable content goes here.
 }
@@ -33,7 +45,7 @@ SwipeableActionsBox(
 ## License
 
 ```
-Copyright 2022 Saket Narayan.
+Copyright 2024 linversion.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

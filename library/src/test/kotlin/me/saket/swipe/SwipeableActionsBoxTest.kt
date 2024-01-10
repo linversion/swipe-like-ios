@@ -2,9 +2,7 @@
 
 package me.saket.swipe
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
@@ -12,9 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.ReplyAll
@@ -34,9 +30,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
-import app.cash.paparazzi.androidHome
-import app.cash.paparazzi.detectEnvironment
 import com.android.ide.common.rendering.api.SessionParams.RenderingMode
+import com.linversion.swipe.SwipeAction
+import com.linversion.swipe.SwipeableActionsBox
+import com.linversion.swipe.SwipeableActionsState
+import com.linversion.swipe.rememberSwipeableActionsState
 import org.junit.Rule
 import org.junit.Test
 
@@ -69,72 +67,40 @@ class SwipeableActionsBoxTest {
     }
   }
 
-  @Test fun `show a placeholder background until swipe threshold is reached`() {
+  @Test fun `show a each action's background when offset is small`() {
     paparazzi.snapshot {
       Scaffold {
         SwipeableActionsBox(
           state = rememberSwipeActionsState(initialOffset = 30.dp),
-          startActions = listOf(snooze),
-          swipeThreshold = 40.dp,
-          backgroundUntilSwipeThreshold = Color.GraySuit,
+          startActions = listOf(snooze, replyAll),
+          swipeThreshold = 80.dp,
           content = { BatmanIpsumItem(background = Color.Unspecified) }
         )
       }
     }
   }
 
-  @Test fun `distribute widths to actions according on their weights`() {
-    paparazzi.snapshot {
-      Scaffold {
-        val boxWidth = maxWidth
-        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-          val actions = listOf(
-            snooze.copy(weight = 0.4),
-            replyAll.copy(weight = 0.6)
-          )
-
-          SwipeableActionsBox(
-            startActions = actions,
-            state = rememberSwipeActionsState(initialOffset = boxWidth * 0.4f),
-            content = { BatmanIpsumItem() }
-          )
-
-          SwipeableActionsBox(
-            startActions = actions,
-            state = rememberSwipeActionsState(initialOffset = boxWidth * 0.6f),
-            content = { BatmanIpsumItem() }
-          )
-        }
-      }
-    }
-  }
-
-  @Test fun `swipe action's background should not be drawn behind content`() {
+  @Test fun `show a each action's background and part of icon when offset is greater than icon offset`() {
     paparazzi.snapshot {
       Scaffold {
         SwipeableActionsBox(
           state = rememberSwipeActionsState(initialOffset = 80.dp),
-          startActions = listOf(snooze),
-          swipeThreshold = 40.dp,
-          backgroundUntilSwipeThreshold = Color.GraySuit,
+          startActions = listOf(snooze, replyAll),
+          swipeThreshold = 80.dp,
           content = { BatmanIpsumItem(background = Color.Unspecified) }
         )
       }
     }
   }
 
-  @Test fun `show last swipe action even when swipe distance exceeds content width`() {
+  @Test fun `should have extra background when offset is greater than threshold`() {
     paparazzi.snapshot {
       Scaffold {
         SwipeableActionsBox(
-          modifier = Modifier
-            .width(200.dp)
-            .requiredHeight(100.dp),
-          state = rememberSwipeActionsState(initialOffset = (-210).dp),
-          endActions = listOf(snooze),
-          swipeThreshold = 40.dp,
-          backgroundUntilSwipeThreshold = Color.GraySuit,
-          content = { BatmanIpsumItem() }
+          state = rememberSwipeActionsState(initialOffset = 180.dp),
+          startActions = listOf(snooze, replyAll),
+          swipeThreshold = 80.dp,
+          content = { BatmanIpsumItem(background = Color.Unspecified) }
         )
       }
     }
@@ -162,7 +128,6 @@ class SwipeableActionsBoxTest {
         .shadow(if (background.isSpecified) 1.dp else 0.dp)
         .background(background)
         .padding(20.dp)
-        .animateContentSize()
     ) {
       Box(
         Modifier

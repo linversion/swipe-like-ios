@@ -11,7 +11,7 @@
     tools:ignore="AllowBackup">
 
     <activity
-      android:name="me.saket.swipe.sample.SampleActivity"
+      android:name="com.linversion.swipe.sample.SampleActivity"
       android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
