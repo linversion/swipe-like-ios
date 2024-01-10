@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-  namespace = "me.saket.swipe.sample"
+  namespace = "com.linversion.swipe.sample"
 
   defaultConfig {
     applicationId = namespace
