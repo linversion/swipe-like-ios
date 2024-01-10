@@ -43,7 +43,6 @@ import androidx.core.view.WindowCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.linversion.swipe.SwipeAction
 import com.linversion.swipe.SwipeableActionsBox
-import me.saket.swipe.sample.R
 import com.linversion.swipe.sample.theme.DarkTheme
 import com.linversion.swipe.sample.theme.LightTheme
 
