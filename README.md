@@ -7,7 +7,7 @@
 ```groovy
 // settings.gradle.kts
 repositories {
-  maven { setUrl("https://www.jitpack.io") }
+  maven { setUrl("https://jitpack.io") }
 }
 
 // build.gradle.kts
