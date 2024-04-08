@@ -3,7 +3,7 @@
 ![](https://github.com/linversion/swipe-like-ios/blob/trunk/screenshot.gif)
 
 `swipe-like-ios` builds composables that can be swiped left or right for revealing actions
-
+[![](https://jitpack.io/v/linversion/swipe-like-ios.svg)](https://jitpack.io/#linversion/swipe-like-ios)
 ```groovy
 // settings.gradle.kts
 repositories {
