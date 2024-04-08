@@ -11,7 +11,7 @@ repositories {
 }
 
 // build.gradle.kts
-implementation("com.github.linversion:swipe-like-ios:latest-version")
+implementation("com.github.linversion.swipe-like-ios:swipe-like-ios:latest-version")
 ```
 
 ```kotlin
