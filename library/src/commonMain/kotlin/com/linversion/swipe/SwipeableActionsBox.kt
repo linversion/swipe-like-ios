@@ -7,7 +7,6 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -24,6 +23,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
@@ -52,9 +52,8 @@ fun SwipeableActionsBox(
   endActions: List<SwipeAction> = emptyList(),
   swipeThreshold: Dp = 40.dp,
   content: @Composable BoxScope.() -> Unit
-) = BoxWithConstraints(modifier) {
+) = Box(modifier) {
   state.also {
-    it.layoutWidth = constraints.maxWidth
     it.swipeThresholdPx = LocalDensity.current.run { swipeThreshold.toPx() }
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     it.actions = remember(endActions, startActions, isRtl) {
@@ -70,6 +69,9 @@ fun SwipeableActionsBox(
 
   Box(
     modifier = Modifier
+      .onSizeChanged {
+        state.layoutWidth = it.width
+      }
       .absoluteOffset { IntOffset(x = offsetX, y = 0) }
       .draggable(
         orientation = Horizontal,
@@ -87,7 +89,7 @@ fun SwipeableActionsBox(
   val actionWidthDp = LocalDensity.current.run { abs(offsetX).toDp() }
 
   if (state.actions.right.isNotEmpty() && offsetX < 0) {
-    val rightActionOffset = constraints.maxWidth + offsetX
+    val rightActionOffset = state.layoutWidth + offsetX
 
     Row(
       Modifier.absoluteOffset { IntOffset(x = rightActionOffset, y = 0) }.matchParentSize(),
@@ -113,7 +115,7 @@ fun SwipeableActionsBox(
   }
 
   if (state.actions.left.isNotEmpty() && offsetX > 0) {
-    val leftActionOffset = -constraints.maxWidth + offsetX
+    val leftActionOffset = -state.layoutWidth + offsetX
 
     Row(
       Modifier.absoluteOffset { IntOffset(x = leftActionOffset, y = 0) }.matchParentSize(),

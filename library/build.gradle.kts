@@ -75,7 +75,7 @@ publishing {
     register<MavenPublication>("release") {
       groupId = "com.linversion.swipe"
       artifactId = "swipe-like-ios"
-      version = "1.0.0"
+      version = "1.0.2"
 
       afterEvaluate {
         from(components["release"])
